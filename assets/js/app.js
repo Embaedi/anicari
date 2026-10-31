@@ -1,4 +1,4 @@
-import { ALL_SOURCES, createCustomSource } from './api.js';
+import { ALL_SOURCES, createCustomSource, archiveVideoUrl } from './api.js?v=mvwsxmev';
 
 /* Ganti setelah repo dibuat (lihat README). */
 const REPO_URL = 'https://github.com/Embaedi/anicari';
@@ -300,6 +300,7 @@ function setProgress(item, episode) {
   persistProgress();
   refreshCardProgress(item.id);
   updateSettingsProgressCount();
+  refreshContinue();
 }
 
 function progressBox(item) {
@@ -475,6 +476,12 @@ function activeSources() {
   return state.sources.filter((source) => source.kind === state.tab);
 }
 
+function refreshContinue() {
+  const existing = els.results.querySelector('.group--continue');
+  if (existing) existing.remove();
+  if (!state.q.trim() && state.tab === 'semua') renderContinue();
+}
+
 function renderContinue() {
   const entries = Object.values(state.progress)
     .sort((a, b) => b.updated - a.updated)
@@ -484,7 +491,7 @@ function renderContinue() {
   const grid = el('div', { class: 'grid', dataset: { type: 'anime' } });
   for (const entry of entries) grid.append(createCard(entry.item));
 
-  els.results.append(
+  els.results.prepend(
     el('section', { class: 'group group--continue' }, [
       el('div', { class: 'group-head' }, [
         el('h2', { class: 'group-title' }, [
@@ -737,6 +744,7 @@ function closeModal() {
   els.modal.hidden = true;
   els.modalBody.replaceChildren();
   document.body.classList.remove('is-locked');
+  refreshContinue();
   if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
   lastFocused = null;
 }
@@ -890,24 +898,40 @@ function videoModal(item) {
     embedUrl = guessEmbed(item.pageUrl);
   }
 
+  const makeEmbed = () => el('div', { class: 'modal-media' },
+    el('iframe', {
+      src: embedUrl,
+      title: item.title,
+      loading: 'lazy',
+      allow: 'fullscreen; picture-in-picture',
+      allowfullscreen: true
+    })
+  );
+
   if (item.mime && item.full && item.mime.startsWith('video/')) {
     wrap.append(
       el('div', { class: 'modal-media' },
         el('video', { src: item.full, poster: item.thumb, controls: true, preload: 'metadata' })
       )
     );
-  } else if (embedUrl) {
-    wrap.append(
-      el('div', { class: 'modal-media' },
-        el('iframe', {
-          src: embedUrl,
-          title: item.title,
-          loading: 'lazy',
-          allow: 'fullscreen; picture-in-picture',
-          allowfullscreen: true
-        })
-      )
+  } else if (item.identifier) {
+    const box = el('div', { class: 'modal-media player-box' },
+      el('div', { class: 'player-loading', text: 'Memuat video dari Internet Archive…' })
     );
+    wrap.append(box);
+
+    archiveVideoUrl(item.identifier).then((url) => {
+      if (!box.isConnected) return;
+      if (url) {
+        box.replaceChildren(el('video', { src: url, poster: item.thumb, controls: true, preload: 'metadata' }));
+      } else if (embedUrl) {
+        box.replaceChildren(el('p', { class: 'player-error', text: 'Video ini tidak tersedia untuk diputar di AniCari. Buka halaman sumber untuk menonton.' }));
+      } else {
+        box.replaceChildren(el('p', { class: 'player-error', text: 'Video tidak bisa diputar di sini. Buka halaman sumber untuk menonton.' }));
+      }
+    });
+  } else if (embedUrl) {
+    wrap.append(makeEmbed());
   }
 
   if (item.description) wrap.append(el('p', { class: 'modal-desc', text: item.description }));
@@ -917,6 +941,7 @@ function videoModal(item) {
   );
   return wrap;
 }
+
 
 /* -------------------------------------------------------------------------- */
 /* settings modal                                                              */
@@ -1286,3 +1311,10 @@ applyRepoLinks();
 buildSources();
 readURL();
 performSearch();
+
+try {
+  const params = new URLSearchParams(location.search);
+  if (params.get('sumber') === '1' || location.hash === '#sumber') openSettings();
+} catch {
+  /* abaikan */
+}

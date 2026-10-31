@@ -400,14 +400,15 @@ button { font: inherit; color: inherit; }
 /* Settings & source manager */
 .nav-btn {
   display: inline-flex; align-items: center; gap: 6px;
-  text-decoration: none;
-  padding: 7px 14px;
-  color: var(--muted); font-weight: 700; font-size: 0.85rem;
-  background: transparent; border: 1px solid var(--line); border-radius: 999px;
-  cursor: pointer; transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+  padding: 8px 2px;
+  color: var(--muted); font-weight: 700; font-size: 0.88rem;
+  background: none; border: 0; text-decoration: none; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: color 0.15s ease;
 }
-.nav-btn:hover { color: var(--text); border-color: var(--line-strong); background: rgba(255, 255, 255, 0.04); }
-.nav-btn:focus-visible { outline: 2px solid var(--accent-3); outline-offset: 2px; }
+.nav-btn:hover { color: var(--text); }
+.nav-btn svg { flex-shrink: 0; }
+.nav-btn:focus-visible { outline: 2px solid var(--accent-3); outline-offset: 4px; border-radius: 6px; }
 
 .settings-panel { width: min(100%, 760px); }
 .settings-body { padding: 24px 26px 30px; }
@@ -464,10 +465,9 @@ button { font: inherit; color: inherit; }
   .form-actions .btn { width: 100%; justify-content: center; }
 }
 
-@media (max-width: 540px) {
-  .header-nav { gap: 10px; }
+@media (max-width: 700px) {
+  .header-nav { gap: 14px; }
   .header-nav a[href="#tentang"] { display: none; }
-  .nav-btn { padding: 6px 10px; }
   .brand-text { font-size: 1.05rem; }
 }
 
@@ -539,3 +539,8 @@ button { font: inherit; color: inherit; }
 .source-group-head .group-toggle { flex-shrink: 0; }
 .source-row[hidden] { display: none; }
 .source-group .source-row { margin-bottom: 6px; }
+
+/* Pemutar video */
+.player-box { min-height: 220px; display: grid; place-items: center; }
+.player-loading { padding: 40px 16px; color: var(--muted); font-size: 0.9rem; }
+.player-error { padding: 30px 16px; color: var(--muted); font-size: 0.9rem; text-align: center; }

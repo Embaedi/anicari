@@ -967,3 +967,37 @@ const CORE_SOURCES = BUILTIN_SOURCES.map((source) => ({
 }));
 
 export const ALL_SOURCES = [...CORE_SOURCES, ...EXTRA_SOURCES];
+
+/* -------------------------------------------------------------------------- */
+/* Pemutar Internet Archive (mp4 langsung, fallback ke embed)                  */
+/* -------------------------------------------------------------------------- */
+
+const archiveVideoCache = new Map();
+
+export async function archiveVideoUrl(identifier) {
+  if (!identifier) return null;
+  if (archiveVideoCache.has(identifier)) return archiveVideoCache.get(identifier);
+
+  try {
+    const meta = await getJSON(`https://archive.org/metadata/${encodeURIComponent(identifier)}`, {}, 15000);
+    const files = Array.isArray(meta.files) ? meta.files : [];
+    const candidates = files
+      .filter((file) => /\.(mp4|webm)$/i.test(file.name || ''))
+      .filter((file) => Number(file.size || 0) > 1024 * 1024)
+      .sort((x, y) => Number(x.size || 0) - Number(y.size || 0));
+    const chosen = candidates.find((file) => /(episode|ep|e)[\s._-]*0?1\b/i.test(file.name || '')) || candidates[0] || null;
+
+    if (!chosen) {
+      archiveVideoCache.set(identifier, null);
+      return null;
+    }
+
+    const safeName = String(chosen.name).split('/').map(encodeURIComponent).join('/');
+    const url = `https://archive.org/download/${encodeURIComponent(identifier)}/${safeName}`;
+    archiveVideoCache.set(identifier, url);
+    return url;
+  } catch {
+    archiveVideoCache.set(identifier, null);
+    return null;
+  }
+}
