@@ -1,4 +1,5 @@
 :root {
+  color-scheme: dark;
   --bg: #07080d;
   --bg-soft: #0b0e15;
   --surface: #10131c;
@@ -399,6 +400,7 @@ button { font: inherit; color: inherit; }
 /* Settings & source manager */
 .nav-btn {
   display: inline-flex; align-items: center; gap: 6px;
+  text-decoration: none;
   padding: 7px 14px;
   color: var(--muted); font-weight: 700; font-size: 0.85rem;
   background: transparent; border: 1px solid var(--line); border-radius: 999px;
