@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>AniCari — Cari anime, foto & video dari seluruh web</title>
+  <meta name="description" content="AniCari adalah pencari gratis dan open source untuk anime, foto, dan video dokumenter dari AniList, Wikimedia Commons, dan Internet Archive." />
+  <meta name="theme-color" content="#07080d" />
+  <meta property="og:title" content="AniCari — Cari anime, foto & video" />
+  <meta property="og:description" content="Satu kotak pencarian untuk anime, foto bebas lisensi, dan video dokumenter. Gratis, open source, tanpa iklan." />
+  <meta property="og:type" content="website" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%2310131c'/%3E%3Ccircle cx='42' cy='42' r='20' fill='none' stroke='%23ff4d8d' stroke-width='9'/%3E%3Cpath d='M57 57l17 17' stroke='%237c5cff' stroke-width='10' stroke-linecap='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://graphql.anilist.co" />
+  <link rel="preconnect" href="https://commons.wikimedia.org" />
+  <link rel="preconnect" href="https://archive.org" />
+  <link rel="stylesheet" href="./assets/css/style.css" />
+</head>
+<body>
+  <a class="skip-link" href="#results">Lewati ke hasil pencarian</a>
+
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="./" aria-label="AniCari, ke halaman utama">
+        <span class="brand-mark" aria-hidden="true">◕</span>
+        <span class="brand-text">Ani<span>Cari</span></span>
+      </a>
+      <nav class="header-nav" aria-label="Navigasi utama">
+        <a href="#tentang">Tentang</a>
+        <a href="https://github.com/Embaedi/anicari" target="_blank" rel="noopener noreferrer" id="repo-link">GitHub</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" aria-labelledby="hero-title">
+      <div class="wrap">
+        <p class="eyebrow">Gratis · Tanpa iklan · Open source</p>
+        <h1 id="hero-title">Cari <span class="grad">anime</span>, foto, dan video <span class="grad">dokumenter</span> dari seluruh web.</h1>
+        <p class="hero-sub">Satu kotak pencarian yang mengambil data langsung dari AniList, Wikimedia Commons, dan Internet Archive — di perangkatmu, tanpa server.</p>
+
+        <form id="search-form" class="search" role="search" autocomplete="off">
+          <label class="sr-only" for="q">Kata kunci pencarian</label>
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="q" name="q" type="search" placeholder="Coba: Frieren, Studio Ghibli, dokumenter alam…" enterkeyhint="search" />
+          <button type="submit" id="search-btn">Cari</button>
+        </form>
+
+        <div class="chips" id="chips" aria-label="Saran pencarian">
+          <button type="button" class="chip" data-q="Frieren">Frieren</button>
+          <button type="button" class="chip" data-q="One Piece">One Piece</button>
+          <button type="button" class="chip" data-q="Studio Ghibli">Studio Ghibli</button>
+          <button type="button" class="chip" data-q="Dokumenter alam">Dokumenter alam</button>
+          <button type="button" class="chip" data-q="Film klasik">Film klasik</button>
+          <button type="button" class="chip" data-q="Lo-fi">Lo-fi</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="browser wrap" aria-labelledby="hasil-title">
+      <div class="toolbar">
+        <div class="tabs" role="tablist" aria-label="Jenis media">
+          <button role="tab" type="button" class="tab is-active" data-tab="semua" aria-selected="true" id="tab-semua">Semua</button>
+          <button role="tab" type="button" class="tab" data-tab="anime" aria-selected="false" id="tab-anime">Anime</button>
+          <button role="tab" type="button" class="tab" data-tab="photo" aria-selected="false" id="tab-photo">Foto</button>
+          <button role="tab" type="button" class="tab" data-tab="video" aria-selected="false" id="tab-video">Video</button>
+        </div>
+        <p class="status" id="status" role="status" aria-live="polite">Memuat rekomendasi…</p>
+      </div>
+
+      <h2 class="sr-only" id="hasil-title">Hasil pencarian</h2>
+      <div id="results" class="results" tabindex="-1"></div>
+
+      <div class="more-wrap">
+        <button type="button" id="more" class="more" hidden>Muat lebih banyak</button>
+      </div>
+    </section>
+
+    <section class="about wrap" id="tentang" aria-labelledby="tentang-title">
+      <h2 id="tentang-title">Bagaimana AniCari bekerja?</h2>
+      <div class="about-grid">
+        <article>
+          <h3>Tanpa server, gratis selamanya</h3>
+          <p>Semua pencarian berjalan di browser kamu dan situs ini adalah file statis yang di-host gratis di GitHub Pages. Tidak ada database, tidak ada akun, tidak ada pelacakan.</p>
+        </article>
+        <article>
+          <h3>Sumber data terbuka</h3>
+          <p><strong>Anime</strong> dari <a href="https://anilist.co" target="_blank" rel="noopener noreferrer">AniList</a>, <strong>foto</strong> dari <a href="https://commons.wikimedia.org" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>, dan <strong>video</strong> dari <a href="https://archive.org" target="_blank" rel="noopener noreferrer">Internet Archive</a>. Semuanya gratis dan ramah CORS.</p>
+        </article>
+        <article>
+          <h3>Open source</h3>
+          <p>Kode berlisensi MIT — fork, ubah, atau tambahkan sumber pencarian baru. Panduan ada di <a href="https://github.com/Embaedi/anicari" target="_blank" rel="noopener noreferrer" id="repo-link-2">repositori GitHub</a>.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Dibuat dengan ♥ — data milik sumber masing-masing.</p>
+      <p class="muted">AniCari · MIT License · <a href="#tentang">Tentang</a></p>
+    </div>
+  </footer>
+
+  <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-backdrop" data-close></div>
+    <div class="modal-panel" role="document">
+      <button type="button" class="modal-close" data-close aria-label="Tutup">✕</button>
+      <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <script type="module" src="./assets/js/app.js"></script>
+</body>
+</html>
