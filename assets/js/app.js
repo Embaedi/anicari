@@ -1215,7 +1215,12 @@ els.more.addEventListener('click', () => {
   performSearch({ append: true });
 });
 
-els.sourcesBtn.addEventListener('click', openSettings);
+els.sourcesBtn.addEventListener('click', (event) => {
+  event.preventDefault();
+  openSettings();
+});
+const aboutSources = document.getElementById('about-sources');
+if (aboutSources) aboutSources.addEventListener('click', openSettings);
 if (els.sourceFilter) els.sourceFilter.addEventListener('input', applySourceFilter);
 
 els.modal.addEventListener('click', (event) => {
