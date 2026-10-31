@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="dark" />
   <title>AniCari — Cari anime, foto & video dari seluruh web</title>
   <meta name="description" content="AniCari adalah pencari gratis dan open source untuk anime, foto, dan video dokumenter dari AniList, Wikimedia Commons, NASA, Internet Archive, Dailymotion, dan sumber kustom." />
   <meta name="theme-color" content="#07080d" />
@@ -25,9 +26,9 @@
         <span class="brand-text">Ani<span>Cari</span></span>
       </a>
       <nav class="header-nav" aria-label="Navigasi utama">
-        <button type="button" class="nav-btn" id="sources-btn" aria-haspopup="dialog" aria-controls="settings">
+        <a class="nav-btn" id="sources-btn" href="#sumber" role="button" aria-haspopup="dialog" aria-controls="settings">
           <span aria-hidden="true">⚙</span> Sumber
-        </button>
+        </a>
         <a href="#tentang">Tentang</a>
         <a href="https://github.com/Embaedi/anicari" target="_blank" rel="noopener noreferrer" id="repo-link">GitHub</a>
       </nav>
@@ -98,6 +99,7 @@
         <article>
           <h3>Tambah sumber tanpa ubah kode</h3>
           <p>Tekan tombol <strong>Sumber</strong> di atas untuk menyalakan/mematikan penyedia, atau menambahkan API JSON apa pun sebagai sumber kustom baru. Konfigurasinya tersimpan di browser kamu.</p>
+          <p><button type="button" class="btn btn-small" id="about-sources">Buka pengaturan sumber</button></p>
         </article>
         <article>
           <h3>Ingat progres &amp; urutkan</h3>
