@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>AniCari — Cari anime, foto & video dari seluruh web</title>
-  <meta name="description" content="AniCari adalah pencari gratis dan open source untuk anime, foto, dan video dokumenter dari AniList, Wikimedia Commons, dan Internet Archive." />
+  <meta name="description" content="AniCari adalah pencari gratis dan open source untuk anime, foto, dan video dokumenter dari AniList, Wikimedia Commons, NASA, Internet Archive, Dailymotion, dan sumber kustom." />
   <meta name="theme-color" content="#07080d" />
   <meta property="og:title" content="AniCari — Cari anime, foto & video" />
   <meta property="og:description" content="Satu kotak pencarian untuk anime, foto bebas lisensi, dan video dokumenter. Gratis, open source, tanpa iklan." />
@@ -25,6 +25,9 @@
         <span class="brand-text">Ani<span>Cari</span></span>
       </a>
       <nav class="header-nav" aria-label="Navigasi utama">
+        <button type="button" class="nav-btn" id="sources-btn" aria-haspopup="dialog" aria-controls="settings">
+          <span aria-hidden="true">⚙</span> Sumber
+        </button>
         <a href="#tentang">Tentang</a>
         <a href="https://github.com/Embaedi/anicari" target="_blank" rel="noopener noreferrer" id="repo-link">GitHub</a>
       </nav>
@@ -36,7 +39,7 @@
       <div class="wrap">
         <p class="eyebrow">Gratis · Tanpa iklan · Open source</p>
         <h1 id="hero-title">Cari <span class="grad">anime</span>, foto, dan video <span class="grad">dokumenter</span> dari seluruh web.</h1>
-        <p class="hero-sub">Satu kotak pencarian yang mengambil data langsung dari AniList, Wikimedia Commons, dan Internet Archive — di perangkatmu, tanpa server.</p>
+        <p class="hero-sub">Satu kotak pencarian yang mengambil data langsung dari AniList, Wikimedia Commons, NASA, Internet Archive, Dailymotion — dan sumber apa pun yang kamu tambahkan sendiri — tanpa server.</p>
 
         <form id="search-form" class="search" role="search" autocomplete="off">
           <label class="sr-only" for="q">Kata kunci pencarian</label>
@@ -64,7 +67,13 @@
           <button role="tab" type="button" class="tab" data-tab="photo" aria-selected="false" id="tab-photo">Foto</button>
           <button role="tab" type="button" class="tab" data-tab="video" aria-selected="false" id="tab-video">Video</button>
         </div>
-        <p class="status" id="status" role="status" aria-live="polite">Memuat rekomendasi…</p>
+        <div class="toolbar-right">
+          <label class="sort-wrap" id="sort-wrap" hidden>
+            <span>Urutkan</span>
+            <select id="sort" aria-label="Urutkan hasil pencarian"></select>
+          </label>
+          <p class="status" id="status" role="status" aria-live="polite">Memuat rekomendasi…</p>
+        </div>
       </div>
 
       <h2 class="sr-only" id="hasil-title">Hasil pencarian</h2>
@@ -83,12 +92,20 @@
           <p>Semua pencarian berjalan di browser kamu dan situs ini adalah file statis yang di-host gratis di GitHub Pages. Tidak ada database, tidak ada akun, tidak ada pelacakan.</p>
         </article>
         <article>
-          <h3>Sumber data terbuka</h3>
-          <p><strong>Anime</strong> dari <a href="https://anilist.co" target="_blank" rel="noopener noreferrer">AniList</a>, <strong>foto</strong> dari <a href="https://commons.wikimedia.org" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a>, dan <strong>video</strong> dari <a href="https://archive.org" target="_blank" rel="noopener noreferrer">Internet Archive</a>. Semuanya gratis dan ramah CORS.</p>
+          <h3>60+ sumber, pilih sendiri</h3>
+          <p>Anime dari <a href="https://anilist.co" target="_blank" rel="noopener noreferrer">AniList</a>, Kitsu, Jikan, dan Studio Ghibli; foto dari Wikimedia Commons, NASA, Openverse, TVmaze, Open Library, dan Disney; video dari Internet Archive, Wikimedia Commons, Dailymotion, dan delapan instance PeerTube. Centang yang kamu mau di menu <strong>Sumber</strong>.</p>
+        </article>
+        <article>
+          <h3>Tambah sumber tanpa ubah kode</h3>
+          <p>Tekan tombol <strong>Sumber</strong> di atas untuk menyalakan/mematikan penyedia, atau menambahkan API JSON apa pun sebagai sumber kustom baru. Konfigurasinya tersimpan di browser kamu.</p>
+        </article>
+        <article>
+          <h3>Ingat progres &amp; urutkan</h3>
+          <p>Tandai episode yang sudah ditonton — AniCari mengingatnya di browser ini dan menampilkan baris <em>Lanjutkan menonton</em>. Hasil bisa diurutkan dari terpopuler, skor tertinggi, atau terbaru, dan kartu bisa diatur untuk langsung membuka situs sumber.</p>
         </article>
         <article>
           <h3>Open source</h3>
-          <p>Kode berlisensi MIT — fork, ubah, atau tambahkan sumber pencarian baru. Panduan ada di <a href="https://github.com/Embaedi/anicari" target="_blank" rel="noopener noreferrer" id="repo-link-2">repositori GitHub</a>.</p>
+          <p>Kode berlisensi MIT — fork, ubah, atau tambahkan sumber bawaan baru di <code>assets/js/api.js</code>. Panduan ada di <a href="https://github.com/Embaedi/anicari" target="_blank" rel="noopener noreferrer" id="repo-link-2">repositori GitHub</a>.</p>
         </article>
       </div>
     </section>
@@ -101,11 +118,71 @@
     </div>
   </footer>
 
+  <!-- Modal detail -->
   <div class="modal" id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="modal-title">
     <div class="modal-backdrop" data-close></div>
     <div class="modal-panel" role="document">
       <button type="button" class="modal-close" data-close aria-label="Tutup">✕</button>
       <div class="modal-body" id="modal-body"></div>
+    </div>
+  </div>
+
+  <!-- Modal pengaturan sumber -->
+  <div class="modal" id="settings" hidden role="dialog" aria-modal="true" aria-labelledby="settings-title">
+    <div class="modal-backdrop" data-settings-close></div>
+    <div class="modal-panel settings-panel" role="document">
+      <button type="button" class="modal-close" data-settings-close aria-label="Tutup pengaturan">✕</button>
+      <div class="settings-body">
+        <h2 id="settings-title">Sumber pencarian</h2>
+        <p class="hint">Aktifkan atau matikan sumber bawaan. Semua pengaturan disimpan di browser ini saja (localStorage).</p>
+
+        <h3 class="settings-sub">Saat kartu diklik</h3>
+        <div class="radio-row">
+          <label><input type="radio" name="click-mode" value="detail" id="click-detail" /> Buka detail di AniCari</label>
+          <label><input type="radio" name="click-mode" value="source" id="click-source" /> Langsung buka sumber di tab baru</label>
+        </div>
+
+        <h3 class="settings-sub">Progres tontonan</h3>
+        <p class="hint">AniCari mengingat episode terakhir tiap anime di browser ini — tanpa akun. Kamu bisa menghapusnya kapan saja.</p>
+        <div class="progress-clear-row">
+          <span id="progress-count" class="source-note"></span>
+          <button type="button" class="btn btn-small" id="clear-progress">Hapus semua progres</button>
+        </div>
+
+        <div class="source-tools">
+          <input id="source-filter" type="search" placeholder="Cari sumber…" aria-label="Filter daftar sumber" />
+          <span id="source-total" class="source-note"></span>
+        </div>
+        <div id="source-list" class="source-list"></div>
+
+        <h3 class="settings-sub">Sumber kustom</h3>
+        <p class="hint">Tambahkan API JSON apa pun yang mengizinkan CORS. Gunakan <code>{q}</code> untuk kata kunci dan <code>{page}</code> untuk halaman. Path memakai notasi titik, misalnya <code>collection.items</code> atau <code>data.0.title</code>. Sumber kustom muncul sebagai tab jenisnya (Foto/Video), bukan di tab Semua.</p>
+        <div id="custom-list" class="custom-list"></div>
+
+        <form id="custom-form" class="custom-form" autocomplete="off">
+          <div class="form-grid">
+            <label class="field">Nama sumber<input id="cf-name" required maxlength="40" placeholder="Contoh: NASA" /></label>
+            <label class="field">Jenis
+              <select id="cf-kind">
+                <option value="photo">Foto</option>
+                <option value="video">Video</option>
+              </select>
+            </label>
+            <label class="field full">URL pencarian<input id="cf-url" required type="text" inputmode="url" placeholder="https://api.contoh.com/search?q={q}&amp;page={page}" /></label>
+            <label class="field full">Header JSON (opsional)<textarea id="cf-headers" rows="2" placeholder='{"Authorization": "Bearer KUNCI"}'></textarea></label>
+            <label class="field">Path items<input id="cf-items" placeholder="items" /></label>
+            <label class="field">Path judul<input id="cf-title" placeholder="title" /></label>
+            <label class="field">Path gambar<input id="cf-thumb" placeholder="thumbnail" /></label>
+            <label class="field">Path link<input id="cf-link" placeholder="url" /></label>
+            <label class="field full">Path deskripsi (opsional)<input id="cf-desc" placeholder="description" /></label>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn" id="cf-test">Tes koneksi</button>
+            <button type="submit" class="btn btn-primary">Simpan sumber</button>
+          </div>
+          <p class="hint" id="custom-status" role="status"></p>
+        </form>
+      </div>
     </div>
   </div>
 
