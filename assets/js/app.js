@@ -1,4 +1,4 @@
-import { ALL_SOURCES, createCustomSource, archiveVideoUrl } from './api.js?v=mvwsxmev';
+import { ALL_SOURCES, createCustomSource, archiveVideoUrl, setYouTubeKey } from './api.js?v=mvwt71w2';
 
 /* Ganti setelah repo dibuat (lihat README). */
 const REPO_URL = 'https://github.com/Embaedi/anicari';
@@ -50,7 +50,12 @@ const els = {
   cfThumb: document.getElementById('cf-thumb'),
   cfLink: document.getElementById('cf-link'),
   cfDesc: document.getElementById('cf-desc'),
-  cfTest: document.getElementById('cf-test')
+  cfTest: document.getElementById('cf-test'),
+  youtubeKey: document.getElementById('youtube-key'),
+  youtubeKeyStatus: document.getElementById('youtube-key-status'),
+  linkForm: document.getElementById('link-form'),
+  linkInput: document.getElementById('link-input'),
+  linkStatus: document.getElementById('link-status')
 };
 
 const SOURCE_HINT = {
@@ -898,7 +903,7 @@ function videoModal(item) {
     embedUrl = guessEmbed(item.pageUrl);
   }
 
-  const makeEmbed = () => el('div', { class: 'modal-media' },
+  const makeEmbed = () => el('div', { class: item.vertical ? 'modal-media vertical' : 'modal-media' },
     el('iframe', {
       src: embedUrl,
       title: item.title,
@@ -966,6 +971,13 @@ function closeSettings() {
 }
 
 function renderSettings() {
+  if (els.youtubeKey) {
+    let key = '';
+    try { key = localStorage.getItem('anicari.youtubeKey') || ''; } catch { key = ''; }
+    els.youtubeKey.value = key;
+    if (els.youtubeKeyStatus) els.youtubeKeyStatus.textContent = key ? 'Key tersimpan — sumber YouTube aktif.' : 'Belum ada key YouTube.';
+  }
+
   if (els.clickDetail && els.clickSource) {
     els.clickDetail.checked = state.clickMode === 'detail';
     els.clickSource.checked = state.clickMode === 'source';
@@ -1180,6 +1192,98 @@ els.cfTest.addEventListener('click', async () => {
   }
 });
 
+function parseMediaLink(raw) {
+  let url;
+  try { url = new URL(String(raw || '').trim()); } catch { return null; }
+  if (!/^https?:$/.test(url.protocol)) return null;
+
+  const host = url.hostname.replace(/^www\./, '').toLowerCase();
+  const path = url.pathname;
+
+  if (host === 'youtu.be' || host.endsWith('youtube.com')) {
+    let id = '';
+    if (host === 'youtu.be') id = path.split('/').filter(Boolean)[0] || '';
+    else if (path === '/watch') id = url.searchParams.get('v') || '';
+    else {
+      const match = path.match(/\/(shorts|embed|live)\/([\w-]{6,})/);
+      if (match) id = match[2];
+    }
+    if (id) {
+      return {
+        kind: 'video',
+        id: `yt-link-${id}`,
+        source: 'YouTube',
+        title: 'Video YouTube',
+        thumb: `https://i.ytimg.com/vi/${id}/hqdefault.jpg`,
+        embedUrl: `https://www.youtube-nocookie.com/embed/${id}`,
+        pageUrl: `https://www.youtube.com/watch?v=${id}`,
+        description: ''
+      };
+    }
+  }
+
+  if (host === 'tiktok.com' || host.endsWith('.tiktok.com')) {
+    const match = path.match(/\/video\/(\d+)/) || path.match(/\/embed\/v2\/(\d+)/) || path.match(/\/player\/v1\/(\d+)/);
+    if (match) {
+      return {
+        kind: 'video',
+        id: `tiktok-link-${match[1]}`,
+        source: 'TikTok',
+        title: 'Video TikTok',
+        embedUrl: `https://www.tiktok.com/player/v1/${match[1]}?autoplay=0&music_info=1&description=0`,
+        pageUrl: url.href,
+        description: '',
+        vertical: true
+      };
+    }
+  }
+
+  if (host.endsWith('vimeo.com')) {
+    const id = path.split('/').filter(Boolean).pop();
+    if (/^\d+$/.test(id || '')) {
+      return {
+        kind: 'video',
+        id: `vimeo-link-${id}`,
+        source: 'Vimeo',
+        title: 'Video Vimeo',
+        embedUrl: `https://player.vimeo.com/video/${id}`,
+        pageUrl: url.href,
+        description: ''
+      };
+    }
+  }
+
+  if (host.endsWith('dailymotion.com') || host === 'dai.ly') {
+    const id = host === 'dai.ly' ? path.split('/').filter(Boolean)[0] : path.split('/').filter(Boolean).pop();
+    if (id) {
+      return {
+        kind: 'video',
+        id: `dm-link-${id}`,
+        source: 'Dailymotion',
+        title: 'Video Dailymotion',
+        embedUrl: `https://www.dailymotion.com/embed/video/${id}`,
+        pageUrl: url.href,
+        description: ''
+      };
+    }
+  }
+
+  if (/\.(mp4|webm|ogv|ogg)$/i.test(path)) {
+    return {
+      kind: 'video',
+      id: `file-${Date.now()}`,
+      source: host,
+      title: 'Video langsung',
+      mime: path.toLowerCase().endsWith('.webm') ? 'video/webm' : 'video/mp4',
+      full: url.href,
+      pageUrl: url.href,
+      description: ''
+    };
+  }
+
+  return null;
+}
+
 /* -------------------------------------------------------------------------- */
 /* events                                                                      */
 /* -------------------------------------------------------------------------- */
@@ -1189,6 +1293,19 @@ function submitSearch(rawQuery) {
   state.q = value;
   els.input.value = value;
   performSearch();
+}
+
+if (els.linkForm) {
+  els.linkForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const item = parseMediaLink(els.linkInput.value);
+    if (!item) {
+      els.linkStatus.textContent = 'Link belum didukung. Coba link YouTube, TikTok, Vimeo, Dailymotion, atau file .mp4/.webm.';
+      return;
+    }
+    els.linkStatus.textContent = '';
+    openModal(item);
+  });
 }
 
 els.form.addEventListener('submit', (event) => {
@@ -1239,6 +1356,20 @@ els.more.addEventListener('click', () => {
   if (state.loading) return;
   performSearch({ append: true });
 });
+
+if (els.youtubeKey) {
+  els.youtubeKey.addEventListener('change', () => {
+    const key = els.youtubeKey.value.trim();
+    try { localStorage.setItem('anicari.youtubeKey', key); } catch { /* abaikan */ }
+    setYouTubeKey(key);
+    if (key) state.enabled.add('youtube');
+    else state.enabled.delete('youtube');
+    persistSources();
+    buildSources();
+    renderSettings();
+    performSearch();
+  });
+}
 
 els.sourcesBtn.addEventListener('click', (event) => {
   event.preventDefault();
@@ -1308,6 +1439,7 @@ function applyRepoLinks() {
 }
 
 applyRepoLinks();
+try { setYouTubeKey(localStorage.getItem('anicari.youtubeKey') || ''); } catch { /* abaikan */ }
 buildSources();
 readURL();
 performSearch();

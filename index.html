@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://graphql.anilist.co" />
   <link rel="preconnect" href="https://commons.wikimedia.org" />
   <link rel="preconnect" href="https://archive.org" />
-  <link rel="stylesheet" href="./assets/css/style.css?v=mvwsxmev" />
+  <link rel="stylesheet" href="./assets/css/style.css?v=mvwt71w2" />
 </head>
 <body>
   <a class="skip-link" href="#results">Lewati ke hasil pencarian</a>
@@ -49,6 +49,13 @@
           <input id="q" name="q" type="search" placeholder="Coba: Frieren, Studio Ghibli, dokumenter alam…" enterkeyhint="search" />
           <button type="submit" id="search-btn">Cari</button>
         </form>
+
+        <form class="link-play" id="link-form" autocomplete="off">
+          <label class="sr-only" for="link-input">Tempel link video</label>
+          <input id="link-input" type="text" inputmode="url" placeholder="Tempel link YouTube / TikTok / Vimeo / MP4…" />
+          <button type="submit">Putar</button>
+        </form>
+        <p class="link-status" id="link-status" role="status"></p>
 
         <div class="chips" id="chips" aria-label="Saran pencarian">
           <button type="button" class="chip" data-q="Frieren">Frieren</button>
@@ -95,7 +102,7 @@
         </article>
         <article>
           <h3>60+ sumber, pilih sendiri</h3>
-          <p>Anime dari <a href="https://anilist.co" target="_blank" rel="noopener noreferrer">AniList</a>, Kitsu, Jikan, dan Studio Ghibli; foto dari Wikimedia Commons, NASA, Openverse, TVmaze, Open Library, dan Disney; video dari Internet Archive, Wikimedia Commons, Dailymotion, dan delapan instance PeerTube. Centang yang kamu mau di menu <strong>Sumber</strong>.</p>
+          <p>Anime dari <a href="https://anilist.co" target="_blank" rel="noopener noreferrer">AniList</a>, Kitsu, Jikan, dan Studio Ghibli; foto dari Wikimedia Commons, NASA, Openverse, TVmaze, Open Library, dan Disney; video dari Internet Archive, Wikimedia Commons, Dailymotion, YouTube (API key), dan delapan instance PeerTube. TikTok bisa diputar lewat kolom <strong>Tempel link</strong>. Centang yang kamu mau di menu <strong>Sumber</strong>.</p>
         </article>
         <article>
           <h3>Tambah sumber tanpa ubah kode</h3>
@@ -145,6 +152,13 @@
           <label><input type="radio" name="click-mode" value="source" id="click-source" /> Langsung buka sumber di tab baru</label>
         </div>
 
+        <h3 class="settings-sub">Kunci platform</h3>
+        <p class="hint">Pencarian YouTube membutuhkan <strong>YouTube Data API key</strong> gratis (Google Cloud Console → aktifkan YouTube Data API v3). TikTok tidak punya API pencarian publik; video TikTok bisa diputar lewat kolom “Tempel link”.</p>
+        <label class="field">YouTube API key
+          <input id="youtube-key" type="password" placeholder="AIza…" autocomplete="off" />
+        </label>
+        <p class="hint" id="youtube-key-status" role="status"></p>
+
         <h3 class="settings-sub">Progres tontonan</h3>
         <p class="hint">AniCari mengingat episode terakhir tiap anime di browser ini — tanpa akun. Kamu bisa menghapusnya kapan saja.</p>
         <div class="progress-clear-row">
@@ -189,6 +203,6 @@
     </div>
   </div>
 
-  <script type="module" src="./assets/js/app.js?v=mvwsxmev"></script>
+  <script type="module" src="./assets/js/app.js?v=mvwt71w2"></script>
 </body>
 </html>

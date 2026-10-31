@@ -21,6 +21,16 @@ const NASA_PAGE_SIZE = 20;
 const OPENVERSE_PAGE_SIZE = 20;
 const DAILYMOTION_LIMIT = 18;
 
+let youtubeKey = '';
+
+export function setYouTubeKey(key) {
+  youtubeKey = String(key || '').trim();
+}
+
+export function hasYouTubeKey() {
+  return Boolean(youtubeKey);
+}
+
 /* -------------------------------------------------------------------------- */
 /* helpers                                                                     */
 /* -------------------------------------------------------------------------- */
@@ -850,6 +860,45 @@ async function searchPeerTube(host, query, page = 1) {
   return { items, hasNext: start + items.length < (json.total || 0) };
 }
 
+async function searchYouTube(query, page = 1, sort = 'popular') {
+  if (!youtubeKey) throw new Error('Butuh API key YouTube di pengaturan.');
+
+  const term = cleanSearchTerm(query) || 'anime';
+  const params = new URLSearchParams({
+    part: 'snippet',
+    type: 'video',
+    maxResults: '18',
+    q: term,
+    order: sort === 'newest' ? 'date' : 'relevance',
+    safeSearch: 'moderate',
+    key: youtubeKey
+  });
+
+  const json = await getJSON(`https://www.googleapis.com/youtube/v3/search?${params.toString()}`, {}, 15000);
+  const items = (json.items || [])
+    .map((row) => {
+      const id = row.id && row.id.videoId;
+      if (!id) return null;
+      const snippet = row.snippet || {};
+      const thumbs = snippet.thumbnails || {};
+      return {
+        kind: 'video',
+        id: `youtube-${id}`,
+        source: 'YouTube',
+        title: plainText(snippet.title) || 'Tanpa judul',
+        thumb: (thumbs.high && thumbs.high.url) || (thumbs.medium && thumbs.medium.url) || '',
+        embedUrl: `https://www.youtube-nocookie.com/embed/${id}`,
+        pageUrl: `https://www.youtube.com/watch?v=${id}`,
+        creator: snippet.channelTitle || '',
+        year: snippet.publishedAt ? String(snippet.publishedAt).slice(0, 4) : '',
+        description: truncate(plainText(snippet.description), 220)
+      };
+    })
+    .filter(Boolean);
+
+  return { items, hasNext: false };
+}
+
 /* -------------------------------------------------------------------------- */
 /* Registry sumber tambahan                                                    */
 /* -------------------------------------------------------------------------- */
@@ -949,6 +998,9 @@ export const EXTRA_SOURCES = [
   /* Internet Archive — foto */
   archiveChannel('ia-comics', 'IA · Komik', 'collection:comics', 'photo'),
   archiveChannel('ia-nasa-images', 'IA · Foto NASA', 'collection:nasa', 'photo'),
+
+  /* YouTube (butuh API key) */
+  { id: 'youtube', kind: 'video', label: 'YouTube', group: 'Video', note: 'Pencarian butuh API key YouTube gratis (lihat bagian Kunci platform).', defaultEnabled: false, search: searchYouTube },
 
   /* PeerTube */
   peerTubeChannel('tilvids.com', 'PeerTube · Tilvids'),

@@ -12,7 +12,7 @@ AniCari adalah situs statis yang mencari ke banyak arsip terbuka sekaligus dan m
 ## ✨ Fitur
 
 - **Pencarian gabungan** — satu kata kunci, hasil dari anime, foto, dan video.
-- **64 sumber bawaan** — dikelompokkan per kategori (Anime, Foto, Video, Wikimedia Commons, Internet Archive, PeerTube) dan bisa dicentang satu per satu.
+- **65 sumber bawaan** — dikelompokkan per kategori (Anime, Foto, Video, Wikimedia Commons, Internet Archive, PeerTube) dan bisa dicentang satu per satu.
 - **Sumber kustom buatan pengguna** — tambahkan API JSON apa pun lewat menu **Sumber**, tanpa mengubah kode dan tanpa deploy ulang.
 - **Bisa dinyalakan/dimatikan** — setiap sumber punya tombol on/off; pengaturan disimpan di `localStorage`.
 - **Tab per jenis media** — Semua, Anime, Foto, Video, dengan tombol *Muat lebih banyak*.
@@ -20,6 +20,7 @@ AniCari adalah situs statis yang mencari ke banyak arsip terbuka sekaligus dan m
 - **Ingat progres tontonan** — tandai episode yang sudah ditonton; AniCari menampilkan badge Ep 4/28 dan baris **Lanjutkan menonton** di halaman utama.
 - **Urutkan hasil** — terpopuler, skor tertinggi, atau terbaru (sesuai sumber).
 - **Pilih cara menonton** — buka detail di AniCari (dengan pemutar) atau langsung ke situs sumber, diatur dari menu **Sumber**.
+- **Putar dari link** — tempel link YouTube, TikTok, Vimeo, Dailymotion, atau file `.mp4`/`.webm` untuk langsung diputar inline, tanpa keluar situs.
 - **Deep link** — hasil bisa dibagikan lewat `?q=frieren&tab=anime`.
 - **Responsif & aksesibel** — jalan di ponsel, dukungan keyboard (`/` fokus pencarian, `Esc` menutup modal), dan `prefers-reduced-motion`.
 - **Tanpa build step** — HTML, CSS, dan JavaScript murni.
@@ -33,18 +34,24 @@ AniCari adalah situs statis yang mencari ke banyak arsip terbuka sekaligus dan m
 
 ## 🧩 Sumber bawaan
 
-Total **64 sumber** dalam 6 grup:
+Total **65 sumber** dalam 6 grup:
 
 | Grup | Jumlah | Isi |
 | ---- | ------ | --- |
 | Anime | 4 | AniList, Kitsu, MyAnimeList (Jikan), Studio Ghibli |
 | Foto | 6 | Wikimedia Commons, NASA, Openverse, TVmaze, Open Library, Disney |
-| Video | 3 | Internet Archive, Wikimedia Commons Video, Dailymotion |
+| Video | 4 | Internet Archive, Wikimedia Commons Video, Dailymotion, YouTube (butuh API key) |
 | Wikimedia Commons | 24 | Cosplay, Anime, Manga, Featured Pictures, alam, lukisan, makanan, hewan, dll. |
 | Internet Archive | 19 | Feature Films, Classic TV, Prelinger, kartun, film pendek, berita, NASA, film noir, western, sci-fi, komedi, dokumenter, komik |
 | PeerTube | 8 | Tilvids, PeerTube.tv, Kolektiva, tchncs, Blender, MakerTube, Spectra, Shanti Cafe |
 
 Hanya **4 sumber inti** yang aktif secara default: AniList, Wikimedia Commons, Internet Archive, dan Wikimedia Commons Video. Sisanya tinggal dicentang. Semua memakai API publik tanpa kunci (kecuali API yang memang membatasi jaringan, seperti Jikan/Openverse/Dailymotion) dan mengirim header CORS.
+
+## ▶️ YouTube, TikTok, dan link langsung
+
+- **YouTube**: pencarian memakai YouTube Data API v3 (kuota 10.000 unit/hari, cukup untuk ±100 pencarian). Masukkan API key gratis di menu **Sumber → Kunci platform**; sumber YouTube otomatis aktif. Pemutaran memakai iframe resmi YouTube.
+- **TikTok**: tidak ada API pencarian publik, jadi tidak bisa dicari kata kunci. Video TikTok tetap bisa diputar inline dengan menempel link videonya di kolom **Tempel link** (memakai TikTok Player resmi).
+- **Link lain**: Vimeo, Dailymotion, dan file video langsung juga didukung lewat kolom yang sama. Konten yang pemiliknya menonaktifkan embed tetap harus dibuka di situs aslinya.
 
 ## ✅ Memilih sumber
 
